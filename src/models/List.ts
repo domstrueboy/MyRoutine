@@ -1,4 +1,4 @@
-import Do, { DoConstructorProps } from './Do';
+import ToDo, { ToDoConstructorProps } from './ToDo';
 
 export interface ListConstructorProps {
     title?: string
@@ -8,7 +8,7 @@ export interface ListConstructorProps {
 export default class List {
     title?: string;
     description?: string;
-    items: Do[];
+    items: ToDo[];
 
     constructor({ title, description }: ListConstructorProps) {
         this.title = title;
@@ -16,11 +16,11 @@ export default class List {
         this.items = [];
     }
 
-    add(input: Do): void;
-    add(input: DoConstructorProps): void {
-        const todo = (input instanceof Do)
+    add(input: ToDo): void;
+    add(input: ToDoConstructorProps): void {
+        const doInstance = (input instanceof ToDo)
             ? input
-            : new Do(input);
-        this.items.push(todo);
+            : new ToDo(input);
+        this.items.push(doInstance);
     }
 }
