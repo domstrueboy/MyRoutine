@@ -1,26 +1,29 @@
-import ToDo, { ToDoConstructorProps } from './ToDo';
+import Todo, { ITodo } from './Todo';
 
-export interface ListConstructorProps {
+const initListState = () => ({ todos: [] });
+
+export interface IList {
     title?: string
     description?: string;
+    todos: Todo[];
 }
 
-export default class List {
+export default class List implements IList {
     title?: string;
     description?: string;
-    items: ToDo[];
+    todos: Todo[];
 
-    constructor({ title, description }: ListConstructorProps) {
+    constructor({ title, description, todos = [] }: IList = initListState()) {
         this.title = title;
         this.description = description;
-        this.items = [];
+        this.todos = todos;
     }
 
-    add(input: ToDo): void;
-    add(input: ToDoConstructorProps): void {
-        const doInstance = (input instanceof ToDo)
+    add(input: Todo): void;
+    add(input: ITodo): void {
+        const doInstance = (input instanceof Todo)
             ? input
-            : new ToDo(input);
-        this.items.push(doInstance);
+            : new Todo(input);
+        this.todos.push(doInstance);
     }
 }
