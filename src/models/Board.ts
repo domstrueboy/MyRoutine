@@ -17,8 +17,8 @@ export default class Board implements IBoard {
         this.lists = lists;
     }
 
-    add(input: Todo): void;
-    add(input: ITodo): void {
+    addTodo(input: Todo): void;
+    addTodo(input: ITodo): void {
         const doInstance = (input instanceof Todo)
             ? input
             : new Todo(input);
