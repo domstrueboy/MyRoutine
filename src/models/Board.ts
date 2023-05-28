@@ -1,3 +1,5 @@
+import { signal, reactive } from '../lib/signalify';
+
 import Todo, { ITodo } from './Todo';
 import List from './List';
 
@@ -8,8 +10,9 @@ export interface IBoard {
     lists: List[];
 }
 
+@reactive
 export default class Board implements IBoard {
-    todos: Todo[];
+    @signal todos: Todo[];
     lists: List[];
 
     constructor({ todos = [], lists = [] }: IBoard = initBoardState()) {

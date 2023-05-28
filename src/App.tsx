@@ -1,4 +1,5 @@
 import type { Component } from 'solid-js';
+import { createEffect } from 'solid-js';
 import styles from './App.module.css';
 
 import MainInput from './components/MainInput';
@@ -10,8 +11,12 @@ const board = new Board();
 
 const App: Component = () => {
 
+  createEffect(() => {
+    console.log('todos', board.todos)
+  })
+
   const showBoard = () => {
-    console.log('BOARD', board);
+    console.log('BOARD', board.todos);
   }
 
   return (
