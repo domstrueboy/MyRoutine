@@ -10,17 +10,9 @@ import Board from './models/Board';
 const board = new Board();
 
 const App: Component = () => {
-
-  createEffect(() => {
-    console.log('todos', board.todos)
-  })
-
-  const showBoard = () => {
-    console.log('BOARD', board.todos);
-  }
-
   return (
     <div class={styles.App}>
+
       <header class={styles.header}>
         <MainInput addTodo={board.addTodo.bind(board)}/>
       </header>
@@ -29,7 +21,6 @@ const App: Component = () => {
         <BoardArea board={board} />
       </main>
 
-      <button onClick={showBoard}>SHOW BOARD</button>
     </div>
   );
 }
