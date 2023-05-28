@@ -17,7 +17,9 @@ export interface Accessor {
 	set(value: unknown): void
 }
 
-export type DecoratedValue = /*Constructor |*/ Function | Accessor | undefined
+export type Constructor<T = object, A extends any[] = any[], Static = {}> = (new (...a: A) => T) & Static
+
+export type DecoratedValue = Constructor | Function | Accessor | undefined
 
 export type DecoratorArgs = [DecoratedValue, DecoratorContext]
 
@@ -28,5 +30,3 @@ export type PropKey = string | symbol
 export interface PropSpec {
 	initialValue: unknown
 }
-
-export type Constructor<T = object, A extends any[] = any[], Static = {}> = (new (...a: A) => T) & Static
