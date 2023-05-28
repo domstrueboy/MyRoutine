@@ -25,6 +25,7 @@ export default class Board implements IBoard {
         const doInstance = (input instanceof Todo)
             ? input
             : new Todo(input);
-        this.todos.push(doInstance);
+        // this.todos.push(doInstance);
+        this.todos = [...this.todos, doInstance];
     }
 }

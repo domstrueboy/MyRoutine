@@ -67,25 +67,27 @@ export function resetPropsToSignalify(key: symbol) {
  * ```
  */
 export function signal(...args: any[]): any {
-	const [_, {kind, name, private: isPrivate, static: isStatic}] = args as DecoratorArgs
+	// console.log(args);
+	// const [_, {kind, name, private: isPrivate, static: isStatic}] = args as DecoratorArgs
+	const [_, name] = args as DecoratorArgs
 	const props = propsToSignalify
 
-	if (isPrivate) throw new Error('@signal is not supported on private fields yet.')
-	if (isStatic) throw new Error('@signal is not supported on static fields yet.')
+	// if (isPrivate) throw new Error('@signal is not supported on private fields yet.')
+	// if (isStatic) throw new Error('@signal is not supported on static fields yet.')
 
-	if (kind === 'field') {
-		props.set(name, {initialValue: undefined})
+	// if (kind === 'field') {
+		props.set(name + '', {initialValue: undefined})
 		return function (this: object, initialValue: unknown) {
-			props.get(name)!.initialValue = initialValue
+			props.get(name + '')!.initialValue = initialValue
 			return initialValue
 		}
-	} else if (kind === 'accessor') {
-		throw new Error('@signal not supported on `accessor` fields yet.')
-	} else if (kind === 'getter' || kind === 'setter') {
-		props.set(name, {initialValue: undefined})
-	} else {
-		throw new Error('The @signal decorator is only for use on fields, accessors, getters, and setters.')
-	}
+	// } else if (kind === 'accessor') {
+	// 	throw new Error('@signal not supported on `accessor` fields yet.')
+	// } else if (kind === 'getter' || kind === 'setter') {
+	// 	props.set(name, {initialValue: undefined})
+	// } else {
+	// 	throw new Error('The @signal decorator is only for use on fields, accessors, getters, and setters.')
+	// }
 
 	// @prod-prune
 	queueReactiveDecoratorChecker(props)
