@@ -3,20 +3,21 @@ import { For } from 'solid-js';
 import styles from './BoardArea.module.css';
 
 import Board from '../../models/Board';
+import TodoCard from '../../components/TodoCard'
 
 const BoardArea: Component<{ board: Board }> = (props) => {
   return (
-    <div class={styles.ListsArea}>
+    <ul class={styles.BoardArea}>
       
       <For
         each={props.board.todos}
         fallback={<div>No todos</div>}
       >
-        {(todo) => <div>{todo.title}</div>}
+        {(todo) => <TodoCard todo={todo}/>}
       </For>
 
-      <h3>{ JSON.stringify(props.board.lists) }</h3>
-    </div>
+      {/* <h3>{ JSON.stringify(props.board.lists) }</h3> */}
+    </ul>
   );
 }
 

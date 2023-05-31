@@ -1,0 +1,15 @@
+.TodoCard {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 var(--normal-padding);
+    margin-bottom: var(--normal-margin);
+}
+
+.TodoTitle {
+    margin-right: auto;
+}
+
+.TodoDone {
+    color: lightgray;
+    text-decoration: line-through;
+}

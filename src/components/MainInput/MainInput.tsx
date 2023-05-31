@@ -22,13 +22,13 @@ const MainInput: Component<{ addTodo: (input: Todo) => void }> = (props) => {
     <form class={styles.MainInput} onSubmit={onSubmit}>
 
       <input
-        placeholder="Enter todo"
+        autofocus
         required
         value={newTitle()}
         onInput={(e) => setTitle(e.currentTarget.value)}
       />
 
-      <button>+</button>
+      {/* <button>+</button> */}
 
     </form>
   );
