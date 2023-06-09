@@ -13,7 +13,12 @@ const BoardArea: Component<{ board: Board }> = (props) => {
         each={props.board.todos}
         fallback={<div>No todos</div>}
       >
-        {(todo) => <TodoCard todo={todo}/>}
+        {
+          (todo) => <TodoCard
+            todo={todo}
+            deleteTodo={props.board.deleteTodo.bind(props.board)}
+          />
+        }
       </For>
 
       {/* <h3>{ JSON.stringify(props.board.lists) }</h3> */}

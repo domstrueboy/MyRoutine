@@ -23,7 +23,10 @@ export default class List implements IList {
         this.todos = [doInstance, ...this.todos];
     }
 
-    deleteTodo() {
-        
+    deleteTodo(id: string): void {
+        const index = this.todos.findIndex(todo => todo.id === id);
+        if (index >= 0) {
+            this.todos = [...this.todos.toSpliced(index, 1)];
+        }
     }
 }
