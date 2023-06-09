@@ -1,29 +1,25 @@
+import { signal, reactive } from '../lib/signalify';
 import Todo, { ITodo } from './Todo';
 
 const initListState = () => ({ todos: [] });
 
 export interface IList {
-    title?: string
-    description?: string;
     todos: Todo[];
 }
 
+@reactive
 export default class List implements IList {
-    title?: string;
-    description?: string;
-    todos: Todo[];
+    @signal todos: Todo[];
 
-    constructor({ title, description, todos = [] }: IList = initListState()) {
-        this.title = title;
-        this.description = description;
+    constructor({ todos = [] }: IList = initListState()) {
         this.todos = todos;
     }
 
-    add(input: Todo): void;
-    add(input: ITodo): void {
+    addTodo(input: Todo): void;
+    addTodo(input: ITodo): void {
         const doInstance = (input instanceof Todo)
             ? input
             : new Todo(input);
-        this.todos.push(doInstance);
+        this.todos = [doInstance, ...this.todos];
     }
 }
