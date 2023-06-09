@@ -11,9 +11,7 @@ const MainInput: Component<{ addTodo: (input: Todo) => void }> = (props) => {
   const onSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     batch(() => {
-      props.addTodo({
-        title: newTitle(),
-      });
+      props.addTodo({ title: newTitle() });
       setTitle('');
     });
   }

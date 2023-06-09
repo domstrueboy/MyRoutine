@@ -22,4 +22,8 @@ export default class List implements IList {
             : new Todo(input);
         this.todos = [doInstance, ...this.todos];
     }
+
+    deleteTodo() {
+        
+    }
 }
