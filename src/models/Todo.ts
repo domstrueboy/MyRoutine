@@ -1,27 +1,38 @@
+import {signal, reactive} from '../lib/signalify';
 import {nanoid} from 'nanoid';
 
 const getId = () => `todo_${nanoid(3)}`;
 
-const initTodoState = () => ({id: getId(), title: ''});
+const initTodoState = () => ({title: 'No title'});
 
-export type TodoI = {
-	id?: string;
+type TodoConstructorI = {
 	title: string;
 	description?: string;
 };
 
+export type TodoI = {
+	id: string;
+	isDone: boolean;
+} & TodoConstructorI;
+
+@reactive
 export default class Todo implements TodoI {
-	id?: string;
-	title: string;
-	description?: string;
+	@signal id: string;
+	@signal title: string;
+	@signal description?: string;
+	@signal isDone: boolean;
 
 	constructor({
-		id = getId(),
-		title = '',
+		title = 'No title',
 		description,
-	}: TodoI = initTodoState()) {
-		this.id = id;
+	}: TodoConstructorI = initTodoState()) {
+		this.id = getId();
 		this.title = title;
 		this.description = description;
+		this.isDone = false;
+	}
+
+	toggleDone() {
+		this.isDone = !this.isDone;
 	}
 }

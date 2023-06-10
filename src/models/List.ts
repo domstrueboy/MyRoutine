@@ -24,9 +24,17 @@ export default class List implements ListI {
 	}
 
 	deleteTodo(id?: string): void {
-		const index = this.todos.findIndex(todo => todo.id === id);
+		const index = this.#findTodoIndexById(id);
 		if (index >= 0) {
 			this.todos = [...this.todos.toSpliced(index, 1)];
 		}
+	}
+
+	#findTodoIndexById(id?: string) {
+		return this.todos.findIndex(todo => todo.id === id);
+	}
+
+	#findTodoInstanceById(id?: string) {
+		return this.todos.find(todo => todo.id === id);
 	}
 }
