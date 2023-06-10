@@ -1,32 +1,32 @@
-import { signal, reactive } from '../lib/signalify';
-import Todo, { ITodo } from './Todo';
+import {signal, reactive} from '../lib/signalify';
+import Todo, {type TodoI} from './Todo';
 
-const initListState = () => ({ todos: [] });
+const initListState = () => ({todos: []});
 
-export interface IList {
-    todos: Todo[];
-}
+export type ListI = {
+	todos: Todo[];
+};
 
 @reactive
-export default class List implements IList {
-    @signal todos: Todo[];
+export default class List implements ListI {
+	@signal todos: Todo[];
 
-    constructor({ todos = [] }: IList = initListState()) {
-        this.todos = todos;
-    }
+	constructor({todos = []}: ListI = initListState()) {
+		this.todos = todos;
+	}
 
-    addTodo(input: Todo): void;
-    addTodo(input: ITodo): void {
-        const doInstance = (input instanceof Todo)
-            ? input
-            : new Todo(input);
-        this.todos = [doInstance, ...this.todos];
-    }
+	addTodo(input: Todo): void;
+	addTodo(input: TodoI): void {
+		const doInstance = (input instanceof Todo)
+			? input
+			: new Todo(input);
+		this.todos = [doInstance, ...this.todos];
+	}
 
-    deleteTodo(id: string): void {
-        const index = this.todos.findIndex(todo => todo.id === id);
-        if (index >= 0) {
-            this.todos = [...this.todos.toSpliced(index, 1)];
-        }
-    }
+	deleteTodo(id?: string): void {
+		const index = this.todos.findIndex(todo => todo.id === id);
+		if (index >= 0) {
+			this.todos = [...this.todos.toSpliced(index, 1)];
+		}
+	}
 }

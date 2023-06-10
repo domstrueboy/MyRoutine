@@ -1,9 +1,9 @@
-import {getInheritedDescriptor} from './getInheritedDescriptor'
-import {createSignal, $PROXY} from 'solid-js'
-import type {Signal} from 'solid-js/types/reactive/signal'
-import type {PropKey, PropSpec} from './decorators/types.js'
+import {getInheritedDescriptor} from './getInheritedDescriptor';
+import {createSignal, $PROXY} from 'solid-js';
+import type {Signal} from 'solid-js/types/reactive/signal';
+import type {PropKey, PropSpec} from './decorators/types.js';
 
-const signalifiedProps = new WeakMap<object, Set<string | symbol>>()
+const signalifiedProps = new WeakMap<Record<string, unknown>, Set<string | symbol>>();
 
 /**
  * Convert properties on an object into Solid signal-backed properties.
@@ -54,42 +54,42 @@ const signalifiedProps = new WeakMap<object, Set<string | symbol>>()
  * })
  * ```
  */
-export function signalify<T extends object>(obj: T, ...props: (keyof T)[]): T
-export function signalify<T extends object, K extends keyof T>(obj: T): T
+export function signalify<T extends Record<string, unknown>>(obj: T, ...props: Array<keyof T>): T;
+export function signalify<T extends Record<string, unknown>, K extends keyof T>(obj: T): T;
 export function signalify(obj: Obj, ...props: [] | [Map<PropKey, PropSpec>] | PropertyKey[]) {
 	// We cast from PropertyKey[] to PropKey[] because numbers can't actually be keys, only string | symbol.
 	const _props = props.length
 		? (props as PropKey[])
-		: (Object.keys(obj) as PropKey[]).concat(Object.getOwnPropertySymbols(obj))
+		: (Object.keys(obj) as PropKey[]).concat(Object.getOwnPropertySymbols(obj));
 
-	for (const prop of _props) createSignalAccessor(obj, prop)
+	for (const prop of _props) {createSignalAccessor(obj, prop)};
 
-	return obj
+	return obj;
 }
 
-let gotCreateSignalAccessor = false
+let gotCreateSignalAccessor = false;
 
 /**
  * This ensures that `createSignalAccessor` is kept internal to classy-solid only.
  */
 export function getCreateSignalAccessor() {
-	if (gotCreateSignalAccessor) throw new Error('Export "createSignalAccessor" is internal to classy-solid only.')
-	gotCreateSignalAccessor = true
-	return createSignalAccessor
+	if (gotCreateSignalAccessor) {throw new Error('Export "createSignalAccessor" is internal to classy-solid only.')};
+	gotCreateSignalAccessor = true;
+	return createSignalAccessor;
 }
 
-function createSignalAccessor<T extends object>(
+function createSignalAccessor<T extends Record<string, unknown>>(
 	obj: T,
 	prop: Exclude<keyof T, number>,
 	initialVal: unknown = obj[prop],
 ): void {
-	if (signalifiedProps.get(obj)?.has(prop)) return
+	if (signalifiedProps.get(obj)?.has(prop)) {return};
 
 	// Special case for Solid proxies: if the object is already a solid proxy,
 	// all properties are already reactive, no need to signalify.
 	// @ts-expect-error special indexed access
-	const proxy = obj[$PROXY] as T
-	if (proxy) return
+	const proxy = obj[$PROXY] as T;
+	if (proxy) {return};
 
 	// XXX If obj already has a signal, skip making an accessor? I think perhaps
 	// not, because a subclass might override a property so it is not reactive,
@@ -98,10 +98,10 @@ function createSignalAccessor<T extends object>(
 	// be reactive.
 	// if (signals.get(obj)?.get(propName) !== undefined) return
 
-	let descriptor: PropertyDescriptor | undefined = getInheritedDescriptor(obj, prop)
+	let descriptor: PropertyDescriptor | undefined = getInheritedDescriptor(obj, prop);
 
-	let originalGet: (() => any) | undefined
-	let originalSet: ((v: any) => void) | undefined
+	let originalGet: (() => any) | undefined;
+	let originalSet: ((v: any) => void) | undefined;
 
 	// TODO if there is an inherited accessor, we need to ensure we still call
 	// it so that we're extending instead of overriding. Otherwise placing
@@ -111,34 +111,34 @@ function createSignalAccessor<T extends object>(
 	// prototype, but we aren't checking for any accessor that may be inherited.
 
 	if (descriptor) {
-		originalGet = descriptor.get
-		originalSet = descriptor.set
+		originalGet = descriptor.get;
+		originalSet = descriptor.set;
 
 		if (originalGet || originalSet) {
-			// reactivity requires both
+			// Reactivity requires both
 			if (!originalGet || !originalSet) {
 				console.warn(
 					`The \`@signal\` decorator was used on an accessor named "${prop.toString()}" which had a getter or a setter, but not both. Reactivity on accessors works only when accessors have both get and set. In this case the decorator does not do anything.`,
-				)
-				return
+				);
+				return;
 			}
 
-			delete descriptor.get
-			delete descriptor.set
+			delete descriptor.get;
+			delete descriptor.set;
 		} else {
-			// initialValue = descriptor.value
+			// InitialValue = descriptor.value
 
 			// if it isn't writable, we don't need to make a reactive variable because
 			// the value won't change
 			if (!descriptor.writable) {
 				console.warn(
 					`The \`@signal\` decorator was used on a property named "${prop.toString()}" that is not writable. Reactivity is not enabled for non-writable properties.`,
-				)
-				return
+				);
+				return;
 			}
 
-			delete descriptor.value
-			delete descriptor.writable
+			delete descriptor.value;
+			delete descriptor.writable;
 		}
 	}
 
@@ -148,61 +148,61 @@ function createSignalAccessor<T extends object>(
 		...descriptor,
 		get: originalGet
 			? function (this: T): unknown {
-					const s = getSignal(this, prop, initialVal)
-					s[0]() // read
-					return originalGet!.call(this)
+				const s = getSignal(this, prop, initialVal);
+				s[0](); // Read
+				return originalGet!.call(this);
 			  }
 			: function (this: any): unknown {
-					const s = getSignal(this, prop, initialVal)
-					return s[0]() // read
+				const s = getSignal(this, prop, initialVal);
+				return s[0](); // Read
 			  },
 		set: originalSet
 			? function (this: any, newValue: unknown) {
-					originalSet!.call(this, newValue)
+				originalSet!.call(this, newValue);
 
-					// __propsSetAtLeastOnce__ is a Set that tracks which reactive
-					// properties have been set at least once. @lume/element uses this
-					// to detect if a reactive prop has been set, and if so will not
-					// overwrite the value with any value from custom element
-					// pre-upgrade.
-					if (!this.__propsSetAtLeastOnce__) this.__propsSetAtLeastOnce__ = new Set<string>()
-					this.__propsSetAtLeastOnce__.add(prop)
+				// __propsSetAtLeastOnce__ is a Set that tracks which reactive
+				// properties have been set at least once. @lume/element uses this
+				// to detect if a reactive prop has been set, and if so will not
+				// overwrite the value with any value from custom element
+				// pre-upgrade.
+				if (!this.__propsSetAtLeastOnce__) {this.__propsSetAtLeastOnce__ = new Set<string>()};
+				this.__propsSetAtLeastOnce__.add(prop);
 
-					const v = getSignal(this, prop)
-					// write
-					if (typeof newValue === 'function') v[1](() => newValue)
-					else v[1](newValue)
+				const v = getSignal(this, prop);
+				// Write
+				if (typeof newValue === 'function') {v[1](() => newValue)};
+				else {v[1](newValue)};
 			  }
 			: function (this: any, newValue: unknown) {
-					if (!this.__propsSetAtLeastOnce__) this.__propsSetAtLeastOnce__ = new Set<string>()
-					this.__propsSetAtLeastOnce__.add(prop)
+				if (!this.__propsSetAtLeastOnce__) {this.__propsSetAtLeastOnce__ = new Set<string>()};
+				this.__propsSetAtLeastOnce__.add(prop);
 
-					const v = getSignal(this, prop)
-					// write
-					if (typeof newValue === 'function') v[1](() => newValue)
-					else v[1](newValue)
+				const v = getSignal(this, prop);
+				// Write
+				if (typeof newValue === 'function') {v[1](() => newValue)};
+				else {v[1](newValue)};
 			  },
-	}
+	};
 
-	Object.defineProperty(obj, prop, descriptor)
+	Object.defineProperty(obj, prop, descriptor);
 
-	if (!signalifiedProps.has(obj)) signalifiedProps.set(obj, new Set())
-	signalifiedProps.get(obj)!.add(prop)
+	if (!signalifiedProps.has(obj)) {signalifiedProps.set(obj, new Set())};
+	signalifiedProps.get(obj)!.add(prop);
 }
 
-const signals = new WeakMap<object, Map<PropKey, Signal<unknown>>>()
+const signals = new WeakMap<Record<string, unknown>, Map<PropKey, Signal<unknown>>>();
 
-function getSignal<T>(instance: object, signalKey: PropKey, initialValue: T = undefined!): Signal<T> {
-	if (!signals.has(instance)) signals.set(instance, new Map())
+function getSignal<T>(instance: Record<string, unknown>, signalKey: PropKey, initialValue: T = undefined!): Signal<T> {
+	if (!signals.has(instance)) {signals.set(instance, new Map())};
 
-	let s = signals.get(instance)!.get(signalKey) as Signal<T> | undefined
+	let s = signals.get(instance)!.get(signalKey) as Signal<T> | undefined;
 
-	if (s) return s
+	if (s) {return s};
 
-	s = createSignal<T>(initialValue, {equals: false})
-	signals.get(instance)?.set(signalKey, s as Signal<unknown>)
+	s = createSignal<T>(initialValue, {equals: false});
+	signals.get(instance)?.set(signalKey, s as Signal<unknown>);
 
-	return s
+	return s;
 }
 
-type Obj = Record<PropKey, unknown>
+type Obj = Record<PropKey, unknown>;

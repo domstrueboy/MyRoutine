@@ -1,29 +1,27 @@
-import type { Component } from 'solid-js';
-import { For } from 'solid-js';
+import type {Component} from 'solid-js';
+import {For} from 'solid-js';
 import styles from './BoardArea.module.css';
 
-import Board from '../../models/Board';
-import TodoCard from '../../components/TodoCard'
+import type Board from '../../models/Board';
+import TodoCard from '../../components/TodoCard';
 
-const BoardArea: Component<{ board: Board }> = (props) => {
-  return (
-    <ul class={styles.BoardArea}>
-      
-      <For
-        each={props.board.todos}
-        fallback={<div>No todos</div>}
-      >
-        {
-          (todo) => <TodoCard
-            todo={todo}
-            deleteTodo={props.board.deleteTodo.bind(props.board)}
-          />
-        }
-      </For>
+const BoardArea: Component<{board: Board}> = props => (
+	<ul class={styles.BoardArea}>
 
-      {/* <h3>{ JSON.stringify(props.board.lists) }</h3> */}
-    </ul>
-  );
-}
+		<For
+			each={props.board.todos}
+			fallback={<div>No todos</div>}
+		>
+			{
+				todo => <TodoCard
+					todo={todo}
+					deleteTodo={props.board.deleteTodo.bind(props.board)}
+				/>
+			}
+		</For>
+
+		{/* <h3>{ JSON.stringify(props.board.lists) }</h3> */}
+	</ul>
+);
 
 export default BoardArea;

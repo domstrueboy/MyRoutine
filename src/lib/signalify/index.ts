@@ -1,1 +1,1 @@
-export * from './decorators/index'
+export * from './decorators/index';

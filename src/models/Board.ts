@@ -1,17 +1,17 @@
-import List, { IList } from './List';
-import Sheet from './Sheet';
+import List, {type ListI} from './List';
+import type Sheet from './Sheet';
 
-const initBoardState = () => ({ todos: [], sheets: [] });
+const initBoardState = () => ({todos: [], sheets: []});
 
-export interface IBoard extends IList {
-    sheets: Sheet[];
-}
+export type BoardI = {
+	sheets: Sheet[];
+} & ListI;
 
-export default class Board extends List implements IBoard {
-    sheets: Sheet[];
+export default class Board extends List implements BoardI {
+	sheets: Sheet[];
 
-    constructor({ todos = [], sheets = [] }: IBoard = initBoardState()) {
-        super({ todos });
-        this.sheets = sheets;
-    }
+	constructor({todos = [], sheets = []}: BoardI = initBoardState()) {
+		super({todos});
+		this.sheets = sheets;
+	}
 }

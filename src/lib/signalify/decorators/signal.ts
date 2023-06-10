@@ -1,7 +1,7 @@
-import type {DecoratorArgs, PropKey, PropSpec} from './types.js'
+import type {DecoratorArgs, PropKey, PropSpec} from './types.js';
 
-let propsToSignalify = new Map<PropKey, PropSpec>()
-let accessKey: symbol | null = null
+let propsToSignalify = new Map<PropKey, PropSpec>();
+let accessKey: symbol | undefined = null;
 
 /**
  * Provides a key for accessing internal APIs. If any other module tries to get
@@ -9,9 +9,12 @@ let accessKey: symbol | null = null
  * work.
  */
 export function getKey() {
-	if (accessKey) throw new Error('Attempted use of classy-solid internals.')
-	accessKey = Symbol()
-	return accessKey
+	if (accessKey) {
+		throw new Error('Attempted use of classy-solid internals.');
+	}
+
+	accessKey = Symbol();
+	return accessKey;
 }
 
 /**
@@ -21,8 +24,11 @@ export function getKey() {
  * functionality.
  */
 export function getPropsToSignalify(key: symbol) {
-	if (key !== accessKey) throw new Error('Attempted use of classy-solid internals.')
-	return propsToSignalify
+	if (key !== accessKey) {
+		throw new Error('Attempted use of classy-solid internals.');
+	}
+
+	return propsToSignalify;
 }
 
 /**
@@ -30,8 +36,11 @@ export function getPropsToSignalify(key: symbol) {
  * reactive.ts)
  */
 export function resetPropsToSignalify(key: symbol) {
-	if (key !== accessKey) throw new Error('Attempted use of classy-solid internals.')
-	propsToSignalify = new Map<PropKey, PropSpec>()
+	if (key !== accessKey) {
+		throw new Error('Attempted use of classy-solid internals.');
+	}
+
+	propsToSignalify = new Map<PropKey, PropSpec>();
 }
 
 /**
@@ -67,22 +76,12 @@ export function resetPropsToSignalify(key: symbol) {
  * ```
  */
 export function signal(...args: any[]): any {
-	// console.log(args);
+	// Console.log(args);
 	// const [_, {kind, name, private: isPrivate, static: isStatic}] = args as DecoratorArgs
-	const [_, name] = args as DecoratorArgs
-	const props = propsToSignalify
+	const [_, name] = args as DecoratorArgs;
+	const props = propsToSignalify;
 
-	// if (isPrivate) throw new Error('@signal is not supported on private fields yet.')
-	// if (isStatic) throw new Error('@signal is not supported on static fields yet.')
-
-	// if (kind === 'field') {
-		props.set(name + '', {initialValue: undefined})
-		return function (this: object, initialValue: unknown) {
-			props.get(name + '')!.initialValue = initialValue
-			return initialValue
-		}
-	// } else if (kind === 'accessor') {
-	// 	throw new Error('@signal not supported on `accessor` fields yet.')
+	// 	Throw new Error('@signal not supported on `accessor` fields yet.')
 	// } else if (kind === 'getter' || kind === 'setter') {
 	// 	props.set(name, {initialValue: undefined})
 	// } else {
@@ -90,10 +89,10 @@ export function signal(...args: any[]): any {
 	// }
 
 	// @prod-prune
-	queueReactiveDecoratorChecker(props)
+	queueReactiveDecoratorChecker(props);
 }
 
-let checkerQueued = false
+let checkerQueued = false;
 
 /**
  * This throws an error in some cases of an end dev forgetting to decorate a
@@ -104,11 +103,14 @@ let checkerQueued = false
  * similar check performed in the @reactive decorator.
  */
 function queueReactiveDecoratorChecker(props: Map<PropKey, PropSpec>) {
-	if (checkerQueued) return
-	checkerQueued = true
+	if (checkerQueued) {
+		return;
+	}
+
+	checkerQueued = true;
 
 	queueMicrotask(() => {
-		checkerQueued = false
+		checkerQueued = false;
 
 		// If the refs are still equal, it means @reactive did not run (forgot
 		// to decorate a class that uses @signal with @reactive).
@@ -117,7 +119,7 @@ function queueReactiveDecoratorChecker(props: Map<PropKey, PropSpec>) {
 				`Stray @signal-decorated properties detected: ${[...props.keys()].join(
 					', ',
 				)}. Did you forget to use the \`@reactive\` decorator on a class that has properties decorated with \`@signal\`?`,
-			)
+			);
 		}
-	})
+	});
 }

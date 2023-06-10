@@ -1,19 +1,19 @@
-import List, { IList } from './List';
+import List, {type ListI} from './List';
 
-const initSheetState = () => ({ todos: [] });
+const initSheetState = () => ({todos: []});
 
-export interface ISheet extends IList {
-    title?: string
-    description?: string;
-}
+export type SheetI = {
+	title?: string;
+	description?: string;
+} & ListI;
 
-export default class Sheet extends List implements ISheet {
-    title?: string;
-    description?: string;
+export default class Sheet extends List implements SheetI {
+	title?: string;
+	description?: string;
 
-    constructor({ title, description, todos = [] }: ISheet = initSheetState()) {
-        super({ todos });
-        this.title = title;
-        this.description = description;
-    }
+	constructor({title, description, todos = []}: SheetI = initSheetState()) {
+		super({todos});
+		this.title = title;
+		this.description = description;
+	}
 }

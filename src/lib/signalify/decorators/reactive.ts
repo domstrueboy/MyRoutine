@@ -1,15 +1,15 @@
-import type {Constructor} from './types'
-import {getKey, getPropsToSignalify, resetPropsToSignalify} from './signal'
-import {getCreateSignalAccessor} from '../signalify'
-import type {DecoratedValue, DecoratorContext} from './types'
+import type {Constructor} from './types';
+import {getKey, getPropsToSignalify, resetPropsToSignalify} from './signal';
+import {getCreateSignalAccessor} from '../signalify';
+import type {DecoratedValue, DecoratorContext} from './types';
 
 /**
  * Access key for classy-solid private internal APIs.
  */
-const accessKey = getKey()
+const accessKey = getKey();
 
-const createSignalAccessor = getCreateSignalAccessor()
-const hasOwnProperty = Object.prototype.hasOwnProperty
+const createSignalAccessor = getCreateSignalAccessor();
+const {hasOwnProperty} = Object.prototype;
 
 /**
  * A decorator that makes a class reactive, allowing it have properties
@@ -42,12 +42,13 @@ const hasOwnProperty = Object.prototype.hasOwnProperty
  * ```
  */
 export function reactive(...args: any[]): any {
-	const [value, context] = args as [DecoratedValue, DecoratorContext]
+	const [value, context] = args as [DecoratedValue, DecoratorContext];
 
-	if (typeof value !== 'function' || (context && context.kind !== 'class'))
-		throw new TypeError('The @reactive decorator is only for use on classes.')
+	if (typeof value !== 'function' || (context && context.kind !== 'class')) {
+		throw new TypeError('The @reactive decorator is only for use on classes.');
+	}
 
-	const props = getPropsToSignalify(accessKey)
+	const props = getPropsToSignalify(accessKey);
 
 	// For the current class decorated with @reactive, we reset the map, so that
 	// for the next class decorated with @reactive we track only that nex
@@ -56,22 +57,22 @@ export function reactive(...args: any[]): any {
 	//
 	// In the future maybe we can use decorator metadata for this
 	// (https://github.com/tc39/proposal-decorator-metadata)?
-	resetPropsToSignalify(accessKey)
+	resetPropsToSignalify(accessKey);
 
 	return class Reactive extends (value as Constructor) {
 		constructor(...args: any[]) {
-			super(...args)
+			super(...args);
 
 			for (const [prop, {initialValue}] of props) {
 				// @prod-prune
 				if (!(hasOwnProperty.call(this, prop) || hasOwnProperty.call((value as Constructor).prototype, prop))) {
 					throw new Error(
 						`Property "${prop.toString()}" not found on object. Did you forget to use the \`@reactive\` decorator on a class that has properties decorated with \`@signal\`?`,
-					)
+					);
 				}
 
-				createSignalAccessor(this, prop as Exclude<keyof this, number>, initialValue)
+				createSignalAccessor(this, prop as Exclude<keyof this, number>, initialValue);
 			}
 		}
-	}
+	};
 }
