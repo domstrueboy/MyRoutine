@@ -81,6 +81,19 @@ export function signal(...args: any[]): any {
 	const [_, name] = args as DecoratorArgs;
 	const props = propsToSignalify;
 
+	// If (isPrivate) throw new Error('@signal is not supported on private fields yet.')
+	// if (isStatic) throw new Error('@signal is not supported on static fields yet.')
+
+	// if (kind === 'field') {
+	props.set(String(name), {initialValue: undefined});
+	return function (this: Record<string, unknown>, initialValue: unknown) {
+		props.get(String(name))!.initialValue = initialValue;
+		return initialValue;
+	};
+
+	// } else if (kind === 'accessor') {
+	// 	throw new Error('@signal not supported on `accessor` fields yet.')
+
 	// 	Throw new Error('@signal not supported on `accessor` fields yet.')
 	// } else if (kind === 'getter' || kind === 'setter') {
 	// 	props.set(name, {initialValue: undefined})

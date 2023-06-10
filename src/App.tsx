@@ -1,5 +1,4 @@
 import type {Component} from 'solid-js';
-import {createEffect} from 'solid-js';
 import styles from './App.module.css';
 
 import MainInput from './components/MainInput';
