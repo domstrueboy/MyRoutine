@@ -1,6 +1,18 @@
 import {signal, reactive} from '../lib/signalify';
 import Todo, {type TodoI} from './Todo';
 
+const handler = {
+	get(target, prop, receiver) {
+		console.log('GET', target, prop, receiver);
+		return target[prop];
+	},
+	set(target, prop, val) {
+		console.log('SET', target, prop, val);
+		target[prop] = val;
+		return true;
+	},
+};
+
 const initListState = () => ({todos: []});
 
 export type ListI = {
@@ -12,15 +24,19 @@ export default class List implements ListI {
 	@signal todos: Todo[];
 
 	constructor({todos = []}: ListI = initListState()) {
-		this.todos = todos;
+		this.todos = new Proxy(todos, handler);
 	}
 
 	addTodo(input: Todo): void;
 	addTodo(input: TodoI): void {
-		const doInstance = (input instanceof Todo)
+		const todoInstance = (input instanceof Todo)
 			? input
 			: new Todo(input);
-		this.todos = [doInstance, ...this.todos];
+		console.log('1', this.todos);
+		this.todos = [todoInstance, ...this.todos];
+		console.log('2', this.todos);
+		// console.log('UNSHIFT');
+		// this.todos.unshift(todoInstance);
 	}
 
 	deleteTodo(id?: string): void {
