@@ -1,3 +1,4 @@
+import {reactive} from '../lib/signalify';
 import List, {type ListI} from './List';
 import type Sheet from './Sheet';
 
@@ -7,6 +8,7 @@ export type BoardI = {
 	sheets: Sheet[];
 } & ListI;
 
+@reactive
 export default class Board extends List implements BoardI {
 	sheets: Sheet[];
 

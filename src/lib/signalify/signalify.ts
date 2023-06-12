@@ -3,6 +3,21 @@ import {createSignal, $PROXY} from 'solid-js';
 import type {Signal} from 'solid-js/types/reactive/signal';
 import type {PropKey, PropSpec} from './decorators/types.js';
 
+type CallbackPayloadT = Record<string, unknown>;
+type CallbackFunctionT = (payload: CallbackPayloadT) => void;
+const signalListeners: CallbackFunctionT[] = [];
+
+export function subscribe(callback: CallbackFunctionT) {
+	signalListeners.push(callback);
+}
+
+function publish(payload: CallbackPayloadT) {
+	signalListeners.forEach(listener => {
+		console.log('LISTENER');
+		listener(payload);
+	});
+}
+
 const signalifiedProps = new WeakMap<Record<string, unknown>, Set<string | symbol>>();
 
 /**
@@ -100,7 +115,7 @@ function createSignalAccessor<T extends Record<string, unknown>>(
 		return;
 	}
 
-	// XXX If obj already has a signal, skip making an accessor? I think perhaps
+	// XXX if obj already has a signal, skip making an accessor? I think perhaps
 	// not, because a subclass might override a property so it is not reactive,
 	// and a further subclass might want to make it reactive again in which
 	// case returning early would cause the subclass subclass's property not to
@@ -221,16 +236,25 @@ function getSignal<T>(instance: Record<string, unknown>, signalKey: PropKey, ini
 		signals.set(instance, new Map());
 	}
 
-	let s = signals.get(instance)!.get(signalKey) as Signal<T> | undefined;
+	let signal = signals.get(instance)!.get(signalKey) as Signal<T> | undefined;
 
-	if (s) {
-		return s;
+	if (signal) {
+		return signal;
 	}
 
-	s = createSignal<T>(initialValue, {equals: false});
-	signals.get(instance)?.set(signalKey, s as Signal<unknown>);
+	signal = createSignal<T>(
+		initialValue,
+		{
+			equals(newVal, oldVal) {
+				publish({newVal, oldVal}); // you can also pass signalKey, instance, signals, if needed
+				return false;
+			},
+		},
+	);
 
-	return s;
+	signals.get(instance)?.set(signalKey, signal as Signal<unknown>);
+
+	return signal;
 }
 
 type Obj = Record<PropKey, unknown>;

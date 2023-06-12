@@ -4,9 +4,15 @@ import styles from './App.module.css';
 import MainInput from './components/MainInput';
 import BoardArea from './components/BoardArea';
 
-import Board from './models/Board';
+import {board} from './index';
 
-const board = new Board();
+import {subscribe as subscribeOnSignal} from './lib/signalify';
+
+subscribeOnSignal(log);
+
+function log() {
+	console.log('BOARD', board);
+}
 
 const App: Component = () => (
 	<div class={styles.App}>

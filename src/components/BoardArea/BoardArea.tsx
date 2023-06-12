@@ -1,5 +1,4 @@
-import type {Component} from 'solid-js';
-import {For} from 'solid-js';
+import {type Component, createEffect, For} from 'solid-js';
 import styles from './BoardArea.module.css';
 
 import type Board from '../../models/Board';

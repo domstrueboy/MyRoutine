@@ -4,6 +4,10 @@ import {render} from 'solid-js/web';
 import './index.css';
 import App from './App';
 
+import Board from './models/Board';
+
+export const board = new Board();
+
 const root = document.getElementById('root');
 
 if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
