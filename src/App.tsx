@@ -4,15 +4,13 @@ import styles from './App.module.css';
 import MainInput from './components/MainInput';
 import BoardArea from './components/BoardArea';
 
+import {syncLocalstorageData} from './lib/localstorage';
+
 import {board} from './index';
 
-import {subscribe as subscribeOnSignal} from './lib/signalify';
+import {subscribe} from './lib/signalify';
 
-subscribeOnSignal(log);
-
-function log() {
-	console.log('BOARD', board);
-}
+subscribe(syncLocalstorageData);
 
 const App: Component = () => (
 	<div class={styles.App}>

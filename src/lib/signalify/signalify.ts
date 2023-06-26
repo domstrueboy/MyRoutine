@@ -3,7 +3,7 @@ import {createSignal, $PROXY} from 'solid-js';
 import type {Signal} from 'solid-js/types/reactive/signal';
 import type {PropKey, PropSpec} from './decorators/types.js';
 
-type CallbackPayloadT = Record<string, unknown>;
+export type CallbackPayloadT = Record<string, unknown>;
 type CallbackFunctionT = (payload: CallbackPayloadT) => void;
 const signalListeners: CallbackFunctionT[] = [];
 
@@ -12,10 +12,7 @@ export function subscribe(callback: CallbackFunctionT) {
 }
 
 function publish(payload: CallbackPayloadT) {
-	signalListeners.forEach(listener => {
-		console.log('LISTENER');
-		listener(payload);
-	});
+	signalListeners.forEach(listener => listener(payload));
 }
 
 const signalifiedProps = new WeakMap<Record<string, unknown>, Set<string | symbol>>();
@@ -245,8 +242,8 @@ function getSignal<T>(instance: Record<string, unknown>, signalKey: PropKey, ini
 	signal = createSignal<T>(
 		initialValue,
 		{
-			equals(newVal, oldVal) {
-				publish({newVal, oldVal}); // you can also pass signalKey, instance, signals, if needed
+			equals(oldVal, newVal) {
+				publish({newVal, oldVal, signalKey}); // you can also pass signalKey, instance, signals, if needed
 				return false;
 			},
 		},
