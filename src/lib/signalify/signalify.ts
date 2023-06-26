@@ -2,16 +2,22 @@ import {getInheritedDescriptor} from './getInheritedDescriptor';
 import {createSignal, $PROXY} from 'solid-js';
 import type {Signal} from 'solid-js/types/reactive/signal';
 import type {PropKey, PropSpec} from './decorators/types.js';
+import { BoardI } from '../../models/Board';
 
-export type CallbackPayloadT = Record<string, unknown>;
-type CallbackFunctionT = (payload: CallbackPayloadT) => void;
+export type CallbackPayloadT = {
+	newVal: unknown;
+	oldVal: unknown;
+	key: string;
+	ctx: BoardI;
+};
+type CallbackFunctionT = (payload?: CallbackPayloadT) => void;
 const signalListeners: CallbackFunctionT[] = [];
 
 export function subscribe(callback: CallbackFunctionT) {
 	signalListeners.push(callback);
 }
 
-function publish(payload: CallbackPayloadT) {
+function publish(payload?: CallbackPayloadT) {
 	signalListeners.forEach(listener => listener(payload));
 }
 
@@ -187,7 +193,7 @@ function createSignalAccessor<T extends Record<string, unknown>>(
 				// overwrite the value with any value from custom element
 				// pre-upgrade.
 				if (!this.__propsSetAtLeastOnce__) {
-					this.__propsSetAtLeastOnce__ = new Set<string>();
+					Object.defineProperty(this, '__propsSetAtLeastOnce__', { value: new Set<string>(), enumerable: false });
 				}
 
 				this.__propsSetAtLeastOnce__.add(prop);
@@ -202,7 +208,7 @@ function createSignalAccessor<T extends Record<string, unknown>>(
 			}
 			: function (this: any, newValue: unknown) {
 				if (!this.__propsSetAtLeastOnce__) {
-					this.__propsSetAtLeastOnce__ = new Set<string>();
+					Object.defineProperty(this, '__propsSetAtLeastOnce__', { value: new Set<string>(), enumerable: false });
 				}
 
 				this.__propsSetAtLeastOnce__.add(prop);
@@ -243,7 +249,16 @@ function getSignal<T>(instance: Record<string, unknown>, signalKey: PropKey, ini
 		initialValue,
 		{
 			equals(oldVal, newVal) {
-				publish({newVal, oldVal, signalKey}); // you can also pass signalKey, instance, signals, if needed
+				setTimeout(() => {
+					publish();
+					// publish({
+					// 	newVal,
+					// 	oldVal,
+					// 	key: signalKey.toString(),
+					// 	ctx: instance as BoardI
+					// });
+				});
+				
 				return false;
 			},
 		},

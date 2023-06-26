@@ -4,13 +4,14 @@ import styles from './App.module.css';
 import MainInput from './components/MainInput';
 import BoardArea from './components/BoardArea';
 
-import {syncLocalstorageData} from './lib/localstorage';
+import {getBoardSaver} from './lib/localstorage';
+import {subscribe} from './lib/signalify';
 
 import {board} from './index';
 
-import {subscribe} from './lib/signalify';
-
-subscribe(syncLocalstorageData);
+setTimeout(() => {
+	subscribe(getBoardSaver(board));
+});
 
 const App: Component = () => (
 	<div class={styles.App}>

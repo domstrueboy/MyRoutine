@@ -1,3 +1,9 @@
-import {syncLocalstorageData} from './localstorage';
+import {
+    getBoardInitState,
+    getBoardSaver,
+} from './localstorage';
 
-export {syncLocalstorageData};
+export {
+    getBoardInitState,
+    getBoardSaver,
+};
