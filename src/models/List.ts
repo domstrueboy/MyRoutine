@@ -11,7 +11,11 @@ export default class List implements ListI {
 	@signal todos: Todo[];
 
 	constructor({todos = []}: ListI = initListState()) {
-		this.todos = todos;
+		this.todos = todos.map(todo => {
+			return (todo instanceof Todo)
+			? todo
+			: new Todo(todo);
+		});
 	}
 
 	addTodo(input: Todo): void;
