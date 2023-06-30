@@ -2,6 +2,24 @@ import {getInheritedDescriptor} from './getInheritedDescriptor';
 import {createSignal, $PROXY} from 'solid-js';
 import type {Signal} from 'solid-js/types/reactive/signal';
 import type {PropKey, PropSpec} from './decorators/types.js';
+import { BoardI } from '../../models/Board';
+
+export type CallbackPayloadT = {
+	newVal: unknown;
+	oldVal: unknown;
+	key: string;
+	ctx: BoardI;
+};
+type CallbackFunctionT = (payload?: CallbackPayloadT) => void;
+const signalListeners: CallbackFunctionT[] = [];
+
+export function subscribe(callback: CallbackFunctionT) {
+	signalListeners.push(callback);
+}
+
+function publish(payload?: CallbackPayloadT) {
+	signalListeners.forEach(listener => listener(payload));
+}
 
 const signalifiedProps = new WeakMap<Record<string, unknown>, Set<string | symbol>>();
 
@@ -100,7 +118,7 @@ function createSignalAccessor<T extends Record<string, unknown>>(
 		return;
 	}
 
-	// XXX If obj already has a signal, skip making an accessor? I think perhaps
+	// XXX if obj already has a signal, skip making an accessor? I think perhaps
 	// not, because a subclass might override a property so it is not reactive,
 	// and a further subclass might want to make it reactive again in which
 	// case returning early would cause the subclass subclass's property not to
@@ -175,7 +193,7 @@ function createSignalAccessor<T extends Record<string, unknown>>(
 				// overwrite the value with any value from custom element
 				// pre-upgrade.
 				if (!this.__propsSetAtLeastOnce__) {
-					this.__propsSetAtLeastOnce__ = new Set<string>();
+					Object.defineProperty(this, '__propsSetAtLeastOnce__', { value: new Set<string>(), enumerable: false });
 				}
 
 				this.__propsSetAtLeastOnce__.add(prop);
@@ -190,7 +208,7 @@ function createSignalAccessor<T extends Record<string, unknown>>(
 			}
 			: function (this: any, newValue: unknown) {
 				if (!this.__propsSetAtLeastOnce__) {
-					this.__propsSetAtLeastOnce__ = new Set<string>();
+					Object.defineProperty(this, '__propsSetAtLeastOnce__', { value: new Set<string>(), enumerable: false });
 				}
 
 				this.__propsSetAtLeastOnce__.add(prop);
@@ -221,16 +239,34 @@ function getSignal<T>(instance: Record<string, unknown>, signalKey: PropKey, ini
 		signals.set(instance, new Map());
 	}
 
-	let s = signals.get(instance)!.get(signalKey) as Signal<T> | undefined;
+	let signal = signals.get(instance)!.get(signalKey) as Signal<T> | undefined;
 
-	if (s) {
-		return s;
+	if (signal) {
+		return signal;
 	}
 
-	s = createSignal<T>(initialValue, {equals: false});
-	signals.get(instance)?.set(signalKey, s as Signal<unknown>);
+	signal = createSignal<T>(
+		initialValue,
+		{
+			equals(oldVal, newVal) {
+				setTimeout(() => {
+					publish();
+					// publish({
+					// 	newVal,
+					// 	oldVal,
+					// 	key: signalKey.toString(),
+					// 	ctx: instance as BoardI
+					// });
+				});
+				
+				return false;
+			},
+		},
+	);
 
-	return s;
+	signals.get(instance)?.set(signalKey, signal as Signal<unknown>);
+
+	return signal;
 }
 
 type Obj = Record<PropKey, unknown>;

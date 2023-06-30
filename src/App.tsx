@@ -4,9 +4,14 @@ import styles from './App.module.css';
 import MainInput from './components/MainInput';
 import BoardArea from './components/BoardArea';
 
-import Board from './models/Board';
+import {getBoardSaver} from './lib/localstorage';
+import {subscribe} from './lib/signalify';
 
-const board = new Board();
+import {board} from './index';
+
+setTimeout(() => {
+	subscribe(getBoardSaver(board));
+});
 
 const App: Component = () => (
 	<div class={styles.App}>

@@ -1,4 +1,4 @@
-import {signal, reactive} from '../lib/signalify';
+import {signal} from '../lib/signalify';
 import Todo, {type TodoI} from './Todo';
 
 const initListState = () => ({todos: []});
@@ -7,20 +7,23 @@ export type ListI = {
 	todos: Todo[];
 };
 
-@reactive
 export default class List implements ListI {
 	@signal todos: Todo[];
 
 	constructor({todos = []}: ListI = initListState()) {
-		this.todos = todos;
+		this.todos = todos.map(todo => {
+			return (todo instanceof Todo)
+			? todo
+			: new Todo(todo);
+		});
 	}
 
 	addTodo(input: Todo): void;
 	addTodo(input: TodoI): void {
-		const doInstance = (input instanceof Todo)
+		const todoInstance = (input instanceof Todo)
 			? input
 			: new Todo(input);
-		this.todos = [doInstance, ...this.todos];
+		this.todos = [todoInstance, ...this.todos];
 	}
 
 	deleteTodo(id?: string): void {

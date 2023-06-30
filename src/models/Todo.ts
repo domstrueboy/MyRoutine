@@ -5,15 +5,12 @@ const getId = () => `todo_${nanoid(3)}`;
 
 const initTodoState = () => ({title: 'No title'});
 
-type TodoConstructorI = {
+export type TodoI = {
+	id?: string;
 	title: string;
 	description?: string;
+	isDone?: boolean;
 };
-
-export type TodoI = {
-	id: string;
-	isDone: boolean;
-} & TodoConstructorI;
 
 @reactive
 export default class Todo implements TodoI {
@@ -23,13 +20,15 @@ export default class Todo implements TodoI {
 	@signal isDone: boolean;
 
 	constructor({
+		id = getId(),
 		title = 'No title',
 		description,
-	}: TodoConstructorI = initTodoState()) {
-		this.id = getId();
+		isDone = false,
+	}: TodoI = initTodoState()) {
+		this.id = id;
 		this.title = title;
 		this.description = description;
-		this.isDone = false;
+		this.isDone = isDone;
 	}
 
 	toggleDone() {

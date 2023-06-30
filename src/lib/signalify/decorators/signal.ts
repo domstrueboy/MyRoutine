@@ -76,7 +76,6 @@ export function resetPropsToSignalify(key: symbol) {
  * ```
  */
 export function signal(...args: any[]): any {
-	// Console.log(args);
 	// const [_, {kind, name, private: isPrivate, static: isStatic}] = args as DecoratorArgs
 	const [_, name] = args as DecoratorArgs;
 	const props = propsToSignalify;
@@ -102,7 +101,7 @@ export function signal(...args: any[]): any {
 	// }
 
 	// @prod-prune
-	queueReactiveDecoratorChecker(props);
+	// queueReactiveDecoratorChecker(props);
 }
 
 let checkerQueued = false;
